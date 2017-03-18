@@ -14,20 +14,19 @@ var ezpz = (function () {
     };
   })();
 
-  var _createModule = function(name, requiredModules, runFunction) {
+  var _createModule = function(name, requiredModules, ctor) {
     var filtered = requiredModules.filter(function(dep){
-      var okay = _verifyName(dep);
-      return _err("Bad dependency name: " + dep);
+      return _verifyName(dep) ? true : _err("Bad dependency name: " + dep);
     });
 
     return {
       name: name,
       required: filtered,
-      run: run
+      ctor: ctor
     }
   };
 
-  var _addModule = function addModule(name, requiredModules, runFunction) {
+  var _addModule = function addModule(name, requiredModules, ctor) {
     if (!_verifyName(name)) {
       return _err("Invalid module name: " + name);
     }
@@ -37,10 +36,10 @@ var ezpz = (function () {
     if (!requiredModules || requiredModules.constructor !== Array) {
       return _err("Required modules are not an array.");
     }
-    if (typeof runFunction !== "function") {
+    if (typeof ctor !== "function") {
       return _err("A function is required as a third argument!");
     }
-    _modules[name] = _createModule(name, requiredModules, runFunction);
+    _modules[name] = _createModule(name, requiredModules, ctor);
   };
 
   var _resolve = (function(){
@@ -59,34 +58,41 @@ var ezpz = (function () {
 
       var isTopFrame= _stackTop;
       _stackTop = false;
-      if(_toResolve.contains(name)) {
+      if(_toResolve.indexOf(name) > -1) {
         _error = true;
-        console.error("Cyclic dependencies: \n");
-        return false;
+        return _err("Cyclic dependencies: \n", _toResolve.join("\n"));
       }
-      var resolvedDeps = module.dependencies.map(function (dep) {
+      var resolvedDeps = module.required.map(function (dep) {
         return _resolve(dep);
       });
       if (_error) {
         return false;
       }
+
       try {
-        module.run(resolvedDeps);
+        module.resolved = module.resolved || module.ctor(resolvedDeps);
+        _stackTop = isTopFrame;
+        if (!module.resolved) {
+          _error = true;
+          return _err("Module constructor returned falsy value!");
+        }
+        return module.resolved;
       } catch(err) {
         _error = true;
+        _stackTop = isTopFrame;
         return _err("Resolve process failed. Module " + module.name + " raised an exception.");
       }
-      _stackTop = isTopFrame;
     };
-  });
+  })();
 
   var _run = function run(name) {
     if (!_modules.hasOwnProperty(name)) {
       return _err("No module registered with name " + name);
     }
-    var module = _modules[name];
-
-    _resolve(module.required);
+    var app = _resolve(name);
+    if (typeof app.run === "function") {
+      app.run();
+    }
   };
 
   return {
