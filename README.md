@@ -1,3 +1,3 @@
-# ng-dhxpro-template
+# template
 
-This is a template for projects with Angular and DHTMLX Pro.
+This is a template

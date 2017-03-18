@@ -141,14 +141,12 @@ module.exports = function (grunt) {
     ]);
   });
 
-  grunt.registerTask('build', 'Builds either dev or prod version. Prod is default.', function (type) {
-    var tagsType = type === 'dev' ? 'dev' : 'prod';
+  grunt.registerTask('build', 'Builds either dev or prod version. Prod is default.', function () {
     grunt.task.run([
       'fileExists',
       'clean:dist',
       'tags:defaultCSS',
       'tags:defaultJS',
-      'tags:' + tagsType,
       'wiredep',
       'copy:dist',
       'wiredepCopy'
