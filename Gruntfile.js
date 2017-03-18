@@ -86,6 +86,7 @@ module.exports = function (grunt) {
           closeTag: '<!-- end scripts here -->'
         },
         src: [
+          'app/appframe/ezpz.js',
           'app/app.js',
           'app/components/**/*.js',
           'app/root/**/*.js'
