@@ -8,23 +8,27 @@ var ezrouter = (function (ezpz) {
   //var _ezpz = ezpz;
   var _rootState = "";
 
-  var _gotoState = function(index, name) {
-    console.log(index, name, _currentState);
-  };
   var _getParent = function(index) {
     return index > 0 ? _currentState[index - 1] : null;
   };
+  var _gotoState = function(index, name) {
+    while (_currentState.length > index + 1) {
+      _currentState.pop();
+    }
+    ezpz.run(_stateDefs[name].controller, _makeState(name));
+  };
 
-  var _makeState = function(name) {
+  function _makeState(name) {
     var _index = _currentState.length;
     var _state = {
       getName: function() {return name;},
       gotoState: function(name) {_gotoState(_index, name);},
-      getParent: function() {_getParent(_index)}
+      getParent: function() {return _getParent(_index)}
     };
     _currentState.push(_state);
     return _currentState[_currentState.length - 1];
   };
+
 
   var addStateDef = function(name, controllerName, children) {
     _stateDefs[name] = {
