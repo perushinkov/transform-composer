@@ -85,18 +85,19 @@ var ezpz = (function () {
     };
   })();
 
-  var _run = function run(name) {
+  var _run = function run(name, state) {
     if (!_modules.hasOwnProperty(name)) {
       return _err("No module registered with name " + name);
     }
     var app = _resolve(name);
     if (typeof app.run === "function") {
-      app.run();
+      app.run(state);
     }
   };
 
   return {
     module: _addModule,
+    controller: _addModule,
     run: _run
   };
 })();

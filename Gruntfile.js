@@ -87,6 +87,7 @@ module.exports = function (grunt) {
         },
         src: [
           'app/appframe/ezpz.js',
+          'app/appframe/ezrouter.js',
           'app/app.js',
           'app/components/**/*.js',
           'app/root/**/*.js'
